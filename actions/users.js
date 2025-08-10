@@ -1,17 +1,16 @@
 'use server';
 
-import fs from 'node:fs';
+import clientPromise from '@/lib/mongodb';
 
 export async function saveUserAction(formData) {
-  console.log('Executed');
-  const data = fs.readFileSync('dummy-db.json', 'utf-8');
-  const instructors = JSON.parse(data);
-  const newInstructor = {
-    id: new Date().getTime().toString(),
+  const client = await clientPromise;
+  const db = client.db("rsc_demo");
+
+  const newUser = {
     name: formData.get('name'),
     title: formData.get('title'),
+    createdAt: new Date()
   };
 
-  instructors.push(newInstructor);
-  fs.writeFileSync('dummy-db.json', JSON.stringify(instructors));
+  await db.collection("users").insertOne(newUser);
 }
