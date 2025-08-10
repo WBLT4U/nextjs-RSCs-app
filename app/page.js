@@ -6,12 +6,18 @@ import UsePromiseDemo from '@/components/UsePromisesDemo';
 import ErrorBoundary from '@/components/ErrorBoundary';
 
 export default async function Home() {
-  const fetchUsersPromise = new Promise(async (resolve) => {
+  // Directly fetch from MongoDB
+  const fetchUsersPromise = (async () => {
     const client = await clientPromise;
     const db = client.db("rsc_demo");
-    const users = await db.collection("users").find().toArray();
-    resolve(JSON.parse(JSON.stringify(users)));
-  });
+    const users = await db.collection("users").find().sort({ createdAt: -1 }).toArray();
+
+    // Convert ObjectId to string
+    return users.map(user => ({
+      ...user,
+      _id: user._id.toString()
+    }));
+  })();
 
   return (
     <main>
